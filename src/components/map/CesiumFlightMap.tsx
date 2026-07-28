@@ -6,6 +6,7 @@ import { getAircraftIconDataUrl } from "@/lib/aircraft-icon";
 import { getAirportPinDataUrl } from "@/lib/airport-pin-icon";
 import { altitudeColorHex } from "@/lib/altitude-color";
 import { cruiseAltitudeProfile, sampleGreatCircle } from "@/lib/geo";
+import { neutralizeNodeProcessForBrowser } from "@/lib/cesium-browser-guard";
 import {
   getClientTrail,
   getLivePosition,
@@ -106,6 +107,7 @@ export default function CesiumFlightMap() {
 
     async function init() {
       if (!containerRef.current) return;
+      const restoreProcess = neutralizeNodeProcessForBrowser();
       try {
         (window as unknown as { CESIUM_BASE_URL?: string }).CESIUM_BASE_URL = "/cesium";
         await import("cesium/Build/Cesium/Widgets/widgets.css");
@@ -230,6 +232,8 @@ export default function CesiumFlightMap() {
       } catch (e) {
         console.error(e);
         if (!destroyed) setError((e as Error).message ?? "Failed to load map");
+      } finally {
+        restoreProcess();
       }
     }
 

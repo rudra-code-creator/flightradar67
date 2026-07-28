@@ -64,5 +64,8 @@
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
+  },
+  "overrides": {
+    "@spz-loader/core": "0.3.0"
   }
 }
