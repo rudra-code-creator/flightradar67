@@ -229,7 +229,7 @@ function ingestFix(
   existing.vs = vs;
 
   // Heading: ease large turns; small changes apply immediately
-  let dHdg = ((hdg - existing.hdg + 540) % 360) - 180;
+  const dHdg = ((hdg - existing.hdg + 540) % 360) - 180;
   if (Math.abs(dHdg) > 45) existing.hdg = hdg;
   else existing.hdg = (existing.hdg + dHdg * 0.55 + 360) % 360;
 

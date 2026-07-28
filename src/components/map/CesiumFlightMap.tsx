@@ -101,6 +101,8 @@ export default function CesiumFlightMap() {
   useEffect(() => {
     let destroyed = false;
     let viewer: import("cesium").Viewer | null = null;
+    const entities = entitiesRef.current;
+    const lastSeen = lastSeenRef.current;
 
     async function init() {
       if (!containerRef.current) return;
@@ -243,8 +245,8 @@ export default function CesiumFlightMap() {
         }
         if (viewerRef.current === viewer) viewerRef.current = null;
       }
-      entitiesRef.current.clear();
-      lastSeenRef.current.clear();
+      entities.clear();
+      lastSeen.clear();
       setReady(false);
     };
   }, [selectFlight, selectAirport, setViewport]);

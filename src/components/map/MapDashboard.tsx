@@ -176,12 +176,13 @@ export function MapDashboard() {
 
   // Drop leftover far-side aircraft as soon as the camera focus moves
   useEffect(() => {
+    const nextViewport = viewport;
     mergeFlights([], {
       maxAgeMs: 20_000,
-      viewport,
-      maxRadiusNm: viewport.radiusNm * 1.25,
+      viewport: nextViewport,
+      maxRadiusNm: nextViewport.radiusNm * 1.25,
     });
-  }, [viewport.lat, viewport.lon, viewport.radiusNm, mergeFlights]);
+  }, [viewport, mergeFlights]);
 
   // SSE deltas for aircraft already in the active viewport hub
   useEffect(() => {
