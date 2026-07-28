@@ -1,0 +1,228 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts           Account[]
+  sessions           Session[]
+  savedFlights       SavedFlight[]
+  favouriteAirports  FavouriteAirport[]
+  searchHistory      SearchHistory[]
+
+  @@index([email])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Airline {
+  id        String   @id @default(cuid())
+  icao      String   @unique
+  iata      String?
+  name      String
+  logoUrl   String?
+  country   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  aircraft Aircraft[]
+  flights  Flight[]
+
+  @@index([iata])
+  @@index([name])
+}
+
+model Airport {
+  id        String   @id @default(cuid())
+  icao      String   @unique
+  iata      String?
+  name      String
+  city      String
+  country   String
+  lat       Float
+  lon       Float
+  timezone  String?
+  elevation Int?
+  runways   Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  departures        Flight[]            @relation("DepartureAirport")
+  arrivals          Flight[]            @relation("ArrivalAirport")
+  favouriteAirports FavouriteAirport[]
+
+  @@index([iata])
+  @@index([city])
+  @@index([country])
+}
+
+model Aircraft {
+  id           String       @id @default(cuid())
+  registration String       @unique
+  icao24       String?      @unique
+  model        String
+  type         AircraftType @default(COMMERCIAL)
+  airlineId    String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  airline Airline? @relation(fields: [airlineId], references: [id])
+  flights Flight[]
+
+  @@index([airlineId])
+  @@index([type])
+}
+
+enum AircraftType {
+  COMMERCIAL
+  CARGO
+  PRIVATE
+}
+
+enum FlightStatus {
+  SCHEDULED
+  BOARDING
+  DEPARTED
+  EN_ROUTE
+  APPROACHING
+  LANDED
+  CANCELLED
+  DIVERTED
+}
+
+model Flight {
+  id               String       @id @default(cuid())
+  callsign         String
+  flightNumber     String?
+  status           FlightStatus @default(SCHEDULED)
+  departureId      String?
+  arrivalId        String?
+  aircraftId       String?
+  airlineId        String?
+  scheduledDep     DateTime?
+  scheduledArr     DateTime?
+  actualDep        DateTime?
+  actualArr        DateTime?
+  progress         Float        @default(0)
+  distanceNm       Float?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  departure  Airport?         @relation("DepartureAirport", fields: [departureId], references: [id])
+  arrival    Airport?         @relation("ArrivalAirport", fields: [arrivalId], references: [id])
+  aircraft   Aircraft?        @relation(fields: [aircraftId], references: [id])
+  airline    Airline?         @relation(fields: [airlineId], references: [id])
+  positions  FlightPosition[]
+  savedBy    SavedFlight[]
+
+  @@index([callsign])
+  @@index([flightNumber])
+  @@index([status])
+  @@index([departureId])
+  @@index([arrivalId])
+  @@index([airlineId])
+  @@index([aircraftId])
+}
+
+model FlightPosition {
+  id            String   @id @default(cuid())
+  flightId      String
+  lat           Float
+  lon           Float
+  altitude      Float
+  speed         Float
+  heading       Float
+  verticalSpeed Float    @default(0)
+  recordedAt    DateTime @default(now())
+
+  flight Flight @relation(fields: [flightId], references: [id], onDelete: Cascade)
+
+  @@index([flightId, recordedAt])
+  @@index([recordedAt])
+}
+
+model SearchHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  query     String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model SavedFlight {
+  id        String   @id @default(cuid())
+  userId    String
+  flightId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  flight Flight @relation(fields: [flightId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, flightId])
+  @@index([userId])
+}
+
+model FavouriteAirport {
+  id        String   @id @default(cuid())
+  userId    String
+  airportId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  airport Airport @relation(fields: [airportId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, airportId])
+  @@index([userId])
+}

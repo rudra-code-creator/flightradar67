@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>FlightRadar67 — Demo Video</title>
+  <style>
+    body { margin: 0; background: #070b14; color: #e2e8f0; font-family: Calibri, Segoe UI, sans-serif; }
+    main { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+    h1 { color: #22d3ee; font-size: 1.25rem; letter-spacing: 0.08em; }
+    p { color: #94a3b8; }
+    video { width: 100%; border-radius: 12px; border: 1px solid #1e293b; background: #000; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
+    img { width: 100%; border-radius: 10px; border: 1px solid #1e293b; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>FLIGHTRADAR67 · DEMO BACKUP</h1>
+    <p>Play this if the live globe is slow on stage Wi‑Fi. ~90s walkthrough captured from the running app.</p>
+    <video controls autoplay muted playsinline src="./assets/demo-walkthrough.mp4">
+      <source src="./assets/demo-walkthrough.mp4" type="video/mp4" />
+      <source src="./assets/demo-walkthrough.webm" type="video/webm" />
+    </video>
+    <div class="grid">
+      <img src="./assets/01-live-globe.png" alt="Live globe" />
+      <img src="./assets/02-flight-selected.png" alt="Flight selected" />
+      <img src="./assets/03-globe-pan.png" alt="Globe pan" />
+      <img src="./assets/05-hero-close.png" alt="Hero close" />
+    </div>
+  </main>
+</body>
+</html>
